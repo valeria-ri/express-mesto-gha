@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 const {
   HTTP_STATUS_OK,
@@ -22,7 +23,7 @@ const createCard = (req, res) => {
     .create({ name, link, owner })
     .then((card) => res.status(HTTP_STATUS_CREATED).send({ data: card }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки' });
         return;
       }
@@ -43,7 +44,7 @@ const deleteCard = (req, res) => {
         res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
         return;
       }
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Удаление карточки с некорректным id' });
         return;
       }
@@ -68,7 +69,7 @@ const likeCard = (req, res) => {
         res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
         return;
       }
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
         return;
       }
@@ -93,7 +94,7 @@ const dislikeCard = (req, res) => {
         res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
         return;
       }
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные для снятия лайка' });
         return;
       }

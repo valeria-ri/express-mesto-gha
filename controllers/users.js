@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const {
   HTTP_STATUS_OK,
@@ -26,7 +27,7 @@ const getUserById = (req, res) => {
         res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
         return;
       }
@@ -40,7 +41,7 @@ const createUser = (req, res) => {
     .create({ name, about, avatar })
     .then((user) => res.status(HTTP_STATUS_CREATED).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
         return;
       }
@@ -61,7 +62,7 @@ const updateUserInfo = (req, res) => {
         res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
         return;
       }
@@ -82,7 +83,7 @@ const updateUserAvatar = (req, res) => {
         res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
         return;
       }
