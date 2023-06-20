@@ -39,6 +39,10 @@ const deleteCard = (req, res) => {
         res.status(notFoundError).send({ message: 'Карточка с указанным id не найдена' });
         return;
       }
+      if (err.name === 'CastError') {
+        res.status(badRequestError).send({ message: 'Удаление карточки с некорректным id' });
+        return;
+      }
       res.status(internalServerError).send({ message: 'Ошибка на сервере' });
     });
 };

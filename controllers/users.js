@@ -24,6 +24,10 @@ const getUserById = (req, res) => {
         res.status(notFoundError).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
+      if (err.name === 'CastError') {
+        res.status(badRequestError).send({ message: 'Некорректный id пользователя' });
+        return;
+      }
       res.status(internalServerError).send({ message: 'Ошибка на сервере' });
     });
 };
@@ -45,7 +49,7 @@ const createUser = (req, res) => {
 const updateUserInfo = (req, res) => {
   const { name, about } = req.body;
   User
-    .findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+    .findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(() => {
       throw new Error('NotFound');
     })
@@ -66,7 +70,7 @@ const updateUserInfo = (req, res) => {
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   User
-    .findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+    .findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(() => {
       throw new Error('NotFound');
     })
