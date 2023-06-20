@@ -1,15 +1,17 @@
 const User = require('../models/user');
 const {
-  badRequestError,
-  notFoundError,
-  internalServerError,
-} = require('../utils/errors');
+  HTTP_STATUS_OK,
+  HTTP_STATUS_CREATED,
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+} = require('../utils/responses');
 
 const getUsers = (req, res) => {
   User
     .find({})
-    .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(internalServerError).send({ message: 'Ошибка на сервере' }));
+    .then((users) => res.status(HTTP_STATUS_OK).send({ data: users }))
+    .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' }));
 };
 
 const getUserById = (req, res) => {
@@ -18,17 +20,17 @@ const getUserById = (req, res) => {
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
     .catch((err) => {
       if (err.message === 'NotFound') {
-        res.status(notFoundError).send({ message: 'Пользователь по указанному id не найден' });
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
       if (err.name === 'CastError') {
-        res.status(badRequestError).send({ message: 'Некорректный id пользователя' });
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
         return;
       }
-      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
     });
 };
 
@@ -36,13 +38,13 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User
     .create({ name, about, avatar })
-    .then((user) => res.status(201).send({ data: user }))
+    .then((user) => res.status(HTTP_STATUS_CREATED).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(badRequestError).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
         return;
       }
-      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
     });
 };
 
@@ -53,17 +55,17 @@ const updateUserInfo = (req, res) => {
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
     .catch((err) => {
       if (err.message === 'NotFound') {
-        res.status(notFoundError).send({ message: 'Пользователь по указанному id не найден' });
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
       if (err.name === 'ValidationError') {
-        res.status(badRequestError).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
         return;
       }
-      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
     });
 };
 
@@ -74,17 +76,17 @@ const updateUserAvatar = (req, res) => {
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
     .catch((err) => {
       if (err.message === 'NotFound') {
-        res.status(notFoundError).send({ message: 'Пользователь по указанному id не найден' });
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
       if (err.name === 'ValidationError') {
-        res.status(badRequestError).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
         return;
       }
-      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
     });
 };
 
