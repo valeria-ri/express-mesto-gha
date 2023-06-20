@@ -1,5 +1,6 @@
 const Card = require('../models/card');
 const {
+  badRequestError,
   notFoundError,
   internalServerError,
 } = require('../utils/errors');
@@ -17,7 +18,13 @@ const createCard = (req, res) => {
   Card
     .create({ name, link, owner })
     .then((card) => res.status(201).send({ data: card }))
-    .catch(() => res.status(internalServerError).send({ message: 'Ошибка на сервере' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(badRequestError).send({ message: 'Переданы некорректные данные при создании карточки' });
+        return;
+      }
+      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
+    });
 };
 
 const deleteCard = (req, res) => {
@@ -52,6 +59,10 @@ const likeCard = (req, res) => {
         res.status(notFoundError).send({ message: 'Передан несуществующий id карточки' });
         return;
       }
+      if (err.name === 'CastError') {
+        res.status(badRequestError).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        return;
+      }
       res.status(internalServerError).send({ message: 'Ошибка на сервере' });
     });
 };
@@ -70,6 +81,10 @@ const dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(notFoundError).send({ message: 'Передан несуществующий id карточки' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(badRequestError).send({ message: 'Переданы некорректные данные для снятия лайка' });
         return;
       }
       res.status(internalServerError).send({ message: 'Ошибка на сервере' });

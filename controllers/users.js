@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const {
+  badRequestError,
   notFoundError,
   internalServerError,
 } = require('../utils/errors');
@@ -8,7 +9,7 @@ const getUsers = (req, res) => {
   User
     .find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+    .catch(() => res.status(internalServerError).send({ message: 'Ошибка на сервере' }));
 };
 
 const getUserById = (req, res) => {
@@ -32,7 +33,13 @@ const createUser = (req, res) => {
   User
     .create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(badRequestError).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        return;
+      }
+      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
+    });
 };
 
 const updateUserInfo = (req, res) => {
@@ -48,7 +55,11 @@ const updateUserInfo = (req, res) => {
         res.status(notFoundError).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
-      res.status(500).send({ message: 'Ошибка на сервере' });
+      if (err.name === 'ValidationError') {
+        res.status(badRequestError).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        return;
+      }
+      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
     });
 };
 
@@ -65,7 +76,11 @@ const updateUserAvatar = (req, res) => {
         res.status(notFoundError).send({ message: 'Пользователь по указанному id не найден' });
         return;
       }
-      res.status(500).send({ message: 'Ошибка на сервере' });
+      if (err.name === 'ValidationError') {
+        res.status(badRequestError).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+        return;
+      }
+      res.status(internalServerError).send({ message: 'Ошибка на сервере' });
     });
 };
 
