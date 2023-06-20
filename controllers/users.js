@@ -49,10 +49,9 @@ const createUser = (req, res) => {
     });
 };
 
-const updateUserInfo = (req, res) => {
-  const { name, about } = req.body;
+const updateUser = (req, res, newData) => {
   User
-    .findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .findByIdAndUpdate(req.user._id, newData, { new: true, runValidators: true })
     .orFail(() => {
       throw new Error('NotFound');
     })
@@ -70,25 +69,14 @@ const updateUserInfo = (req, res) => {
     });
 };
 
+const updateUserInfo = (req, res) => {
+  const { name, about } = req.body;
+  return updateUser(req, res, { name, about });
+};
+
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  User
-    .findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(() => {
-      throw new Error('NotFound');
-    })
-    .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
-        return;
-      }
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-        return;
-      }
-      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
-    });
+  return updateUser(req, res, { avatar });
 };
 
 module.exports = {
