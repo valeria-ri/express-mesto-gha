@@ -9,8 +9,8 @@ const {
 
 const getCards = (req, res) => {
   Card
-    .populate(['owner', 'likes'])
     .find({})
+    .populate(['owner', 'likes'])
     .then((cards) => res.status(HTTP_STATUS_OK).send({ data: cards }))
     .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' }));
 };
