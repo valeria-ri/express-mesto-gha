@@ -1,7 +1,9 @@
+const HTTP_STATUS_BAD_REQUEST = require('../utils/responses');
+
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
-    this.statusCode = 400;
+    this.statusCode = HTTP_STATUS_BAD_REQUEST;
   }
 }
 

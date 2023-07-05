@@ -1,22 +1,26 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
+
 const {
   HTTP_STATUS_OK,
   HTTP_STATUS_CREATED,
-  HTTP_STATUS_BAD_REQUEST,
-  HTTP_STATUS_NOT_FOUND,
-  HTTP_STATUS_INTERNAL_SERVER_ERROR,
 } = require('../utils/responses');
 
-const getCards = (req, res) => {
+const {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} = require('../errors/errors');
+
+const getCards = (req, res, next) => {
   Card
     .find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.status(HTTP_STATUS_OK).send({ data: cards }))
-    .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' }));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card
@@ -24,43 +28,35 @@ const createCard = (req, res) => {
     .then((card) => res.status(HTTP_STATUS_CREATED).send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки' });
-        return;
+        next(new BadRequestError('Переданы некорректные данные при создании карточки'));
       }
-      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+      next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card
-    .findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
-      throw new Error('NotFound');
+    .findById(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка с указанным id не найдена');
+      }
+      if (card.owner.toString() !== req.user._id.toString()) {
+        throw new ForbiddenError('Нет прав для удаления карточки');
+      }
+      return card
+        .remove()
+        .then(() => res.status(HTTP_STATUS_OK).send({ message: 'Пост удалён' }));
     })
-    .populate(['owner', 'likes'])
-    .then(() => res.status(HTTP_STATUS_OK).send({ message: 'Пост удалён' }))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
-        return;
-      }
       if (err instanceof mongoose.Error.CastError) {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Удаление карточки с некорректным id' });
-        return;
+        next(new BadRequestError('Удаление карточки с некорректным id'));
       }
-      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+      next(err);
     });
-
-  // Card
-  //   .findById(req.params.cardId)
-  //   .then((card) => {
-  //     if (!card) {
-  //       throw new NotFound()
-  //     }
-  //   })
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card
     .findByIdAndUpdate(
       req.params.cardId,
@@ -68,24 +64,19 @@ const likeCard = (req, res) => {
       { new: true },
     )
     .orFail(() => {
-      throw new Error('NotFound');
+      throw new NotFoundError('Карточка с указанным id не найдена');
     })
     .populate(['owner', 'likes'])
     .then((card) => res.status(HTTP_STATUS_OK).send({ data: card }))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
-        return;
-      }
       if (err instanceof mongoose.Error.CastError) {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
-        return;
+        next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
       }
-      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+      next(err);
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card
     .findByIdAndUpdate(
       req.params.cardId,
@@ -93,20 +84,15 @@ const dislikeCard = (req, res) => {
       { new: true },
     )
     .orFail(() => {
-      throw new Error('NotFound');
+      throw new NotFoundError('Карточка с указанным id не найдена');
     })
     .populate(['owner', 'likes'])
     .then((card) => res.status(HTTP_STATUS_OK).send({ data: card }))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
-        return;
-      }
       if (err instanceof mongoose.Error.CastError) {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные для снятия лайка' });
-        return;
+        next(new BadRequestError('Переданы некорректные данные для снятия лайка'));
       }
-      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+      next(err);
     });
 };
 

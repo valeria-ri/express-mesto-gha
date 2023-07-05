@@ -1,7 +1,9 @@
+const HTTP_STATUS_FORBIDDEN = require('../utils/responses');
+
 class ForbiddenError extends Error {
   constructor(message) {
     super(message);
-    this.statusCode = 403;
+    this.statusCode = HTTP_STATUS_FORBIDDEN;
   }
 }
 
