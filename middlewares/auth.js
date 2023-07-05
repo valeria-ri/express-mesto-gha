@@ -18,7 +18,6 @@ const auth = (req, res, next) => {
       _id: new mongoose.Types.ObjectId(payload._id),
     };
 
-    // req.user = payload;
     next();
   } catch (err) {
     return res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: 'Пользователь не авторизован' });

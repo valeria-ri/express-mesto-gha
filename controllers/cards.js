@@ -50,6 +50,14 @@ const deleteCard = (req, res) => {
       }
       res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
     });
+
+  // Card
+  //   .findById(req.params.cardId)
+  //   .then((card) => {
+  //     if (!card) {
+  //       throw new NotFound()
+  //     }
+  //   })
 };
 
 const likeCard = (req, res) => {
