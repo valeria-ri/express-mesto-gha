@@ -1,13 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const isURL = require('validator/lib/isURL');
-const { BadRequestError } = require('../errors/errors');
-
-const validateURL = (url) => {
-  if (!isURL(url)) {
-    throw new BadRequestError('Неправильный формат ссылки');
-  }
-  return url;
-};
+const { regex } = require('../utils/constants');
 
 const validateSignin = celebrate({
   body: Joi.object().keys({
@@ -20,7 +12,7 @@ const validateSignup = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom(validateURL),
+    avatar: Joi.string().pattern(regex),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
@@ -41,14 +33,14 @@ const validateUserInfo = celebrate({
 
 const validateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().custom(validateURL),
+    avatar: Joi.string().pattern(regex),
   }),
 });
 
 const validateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().custom(validateURL),
+    link: Joi.string().required().pattern(regex),
   }),
 });
 
