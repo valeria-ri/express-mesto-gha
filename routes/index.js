@@ -3,12 +3,16 @@ const userRouter = require('./users');
 const cardRouter = require('./cards');
 const auth = require('../middlewares/auth');
 const {
+  validateSignin,
+  validateSignup,
+} = require('../middlewares/validate');
+const {
   createUser,
   loginUser,
 } = require('../controllers/users');
 
-router.post('/signup', createUser);
-router.post('/signin', loginUser);
+router.post('/signup', validateSignin, createUser);
+router.post('/signin', validateSignup, loginUser);
 
 router.use(auth);
 
