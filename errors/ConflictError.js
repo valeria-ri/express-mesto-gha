@@ -1,4 +1,4 @@
-const HTTP_STATUS_CONFLICT = require('../utils/responses');
+const { HTTP_STATUS_CONFLICT } = require('../utils/responses');
 
 class ConflictError extends Error {
   constructor(message) {

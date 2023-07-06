@@ -1,4 +1,4 @@
-const HTTP_STATUS_NOT_FOUND = require('../utils/responses');
+const { HTTP_STATUS_NOT_FOUND } = require('../utils/responses');
 
 class NotFoundError extends Error {
   constructor(message) {
