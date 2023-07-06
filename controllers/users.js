@@ -47,12 +47,7 @@ const getCurrentUser = (req, res, next) => {
       throw new NotFoundError('Пользователь по указанному id не найден');
     })
     .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Некорректный id пользователя'));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
