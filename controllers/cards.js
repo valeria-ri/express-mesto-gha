@@ -45,7 +45,7 @@ const deleteCard = (req, res, next) => {
         throw new ForbiddenError('Нет прав для удаления карточки');
       }
       return card
-        .remove()
+        .deleteOne()
         .then(() => res.status(HTTP_STATUS_OK).send({ message: 'Пост удалён' }));
     })
     .catch((err) => {
