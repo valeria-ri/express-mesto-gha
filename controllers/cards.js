@@ -58,11 +58,11 @@ const deleteCard = (req, res, next) => {
     });
 };
 
-const likeCard = (req, res, next) => {
+const updateCard = (req, res, next, newData) => {
   Card
     .findByIdAndUpdate(
       req.params.cardId,
-      { $addToSet: { likes: req.user._id } },
+      newData,
       { new: true },
     )
     .orFail(() => {
@@ -72,33 +72,26 @@ const likeCard = (req, res, next) => {
     .then((card) => res.status(HTTP_STATUS_OK).send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
+        next(new BadRequestError('Переданы некорректные данные для изменения состояния лайка'));
       } else {
         next(err);
       }
     });
 };
 
-const dislikeCard = (req, res, next) => {
-  Card
-    .findByIdAndUpdate(
-      req.params.cardId,
-      { $pull: { likes: req.user._id } },
-      { new: true },
-    )
-    .orFail(() => {
-      throw new NotFoundError('Карточка с указанным id не найдена');
-    })
-    .populate(['owner', 'likes'])
-    .then((card) => res.status(HTTP_STATUS_OK).send({ data: card }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Переданы некорректные данные для снятия лайка'));
-      } else {
-        next(err);
-      }
-    });
-};
+const likeCard = (req, res, next) => updateCard(
+  req,
+  res,
+  next,
+  { $addToSet: { likes: req.user._id } },
+);
+
+const dislikeCard = (req, res, next) => updateCard(
+  req,
+  res,
+  next,
+  { $pull: { likes: req.user._id } },
+);
 
 module.exports = {
   getCards,
