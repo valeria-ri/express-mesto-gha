@@ -35,8 +35,9 @@ const getUserById = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Некорректный id пользователя'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -73,11 +74,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-      }
-      if (err.code === MONGO_DUPLICATE_KEY_ERROR) {
+      } else if (err.code === MONGO_DUPLICATE_KEY_ERROR) {
         next(new ConflictError('Такой пользователь уже существует'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -109,8 +110,9 @@ const updateUser = (req, res, next, newData) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
