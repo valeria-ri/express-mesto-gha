@@ -25,9 +25,9 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
-const getUserById = (req, res, next) => {
+const getUser = (req, res, next, userData) => {
   User
-    .findById(req.params.userId)
+    .findById(userData)
     .orFail(() => {
       throw new NotFoundError('Пользователь по указанному id не найден');
     })
@@ -41,15 +41,9 @@ const getUserById = (req, res, next) => {
     });
 };
 
-const getCurrentUser = (req, res, next) => {
-  User
-    .findById(req.user._id)
-    .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному id не найден');
-    })
-    .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
-    .catch(next);
-};
+const getUserById = (req, res, next) => getUser(req, res, next, req.params.userId);
+
+const getCurrentUser = (req, res, next) => getUser(req, res, next, req.user._id);
 
 const createUser = (req, res, next) => {
   const {
