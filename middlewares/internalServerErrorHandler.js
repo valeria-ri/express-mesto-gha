@@ -1,4 +1,4 @@
-const HTTP_STATUS_INTERNAL_SERVER_ERROR = require('../utils/responses');
+const { HTTP_STATUS_INTERNAL_SERVER_ERROR } = require('../utils/responses');
 
 const internalServerErrorHandler = (err, req, res, next) => {
   const { statusCode = HTTP_STATUS_INTERNAL_SERVER_ERROR, message } = err;
