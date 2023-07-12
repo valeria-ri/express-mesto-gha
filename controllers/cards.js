@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
 
-const {
-  HTTP_STATUS_OK,
-  HTTP_STATUS_CREATED,
-} = require('../utils/responses');
+const { HTTP_STATUS_CREATED } = require('../utils/responses');
 
 const {
   BadRequestError,
@@ -16,7 +13,7 @@ const getCards = (req, res, next) => {
   Card
     .find({})
     .populate(['owner', 'likes'])
-    .then((cards) => res.status(HTTP_STATUS_OK).send({ data: cards }))
+    .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
 
@@ -48,7 +45,7 @@ const deleteCard = (req, res, next) => {
       }
       return card
         .deleteOne()
-        .then(() => res.status(HTTP_STATUS_OK).send({ message: 'Пост удалён' }));
+        .then(() => res.send({ message: 'Пост удалён' }));
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
@@ -70,7 +67,7 @@ const updateCard = (req, res, next, newData) => {
       throw new NotFoundError('Карточка с указанным id не найдена');
     })
     .populate(['owner', 'likes'])
-    .then((card) => res.status(HTTP_STATUS_OK).send({ data: card }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Переданы некорректные данные для изменения состояния лайка'));

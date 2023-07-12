@@ -21,7 +21,7 @@ const { SALT_ROUNDS } = require('../utils/constants');
 const getUsers = (req, res, next) => {
   User
     .find({})
-    .then((users) => res.status(HTTP_STATUS_OK).send({ data: users }))
+    .then((users) => res.send({ data: users }))
     .catch(next);
 };
 
@@ -31,7 +31,7 @@ const getUser = (req, res, next, userData) => {
     .orFail(() => {
       throw new NotFoundError('Пользователь по указанному id не найден');
     })
-    .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Некорректный id пользователя'));
@@ -89,7 +89,7 @@ const loginUser = (req, res, next) => {
         throw new UnauthorizedError('Неверный email или пароль');
       }
       const token = signToken({ _id: user._id });
-      res.status(HTTP_STATUS_OK).send({ token });
+      res.send({ token });
     })
     .catch(next);
 };
@@ -100,7 +100,7 @@ const updateUser = (req, res, next, newData) => {
     .orFail(() => {
       throw new NotFoundError('Пользователь по указанному id не найден');
     })
-    .then((user) => res.status(HTTP_STATUS_OK).send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
